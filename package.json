@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/austinewuncler/daraja#readme",
   "devDependencies": {
+    "@types/node": "^14.14.28",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "eslint": "^7.20.0",
