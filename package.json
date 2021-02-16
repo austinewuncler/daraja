@@ -1,0 +1,23 @@
+{
+  "name": "daraja",
+  "version": "0.1.0",
+  "description": "A NodeJS library to simplify integration with Safaricom's Daraja M-Pesa API",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/austinewuncler/daraja.git"
+  },
+  "keywords": [],
+  "author": "Austine Were <austinewuncler@gmail.com> (https://github.com/austinewuncler)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/austinewuncler/daraja/issues"
+  },
+  "homepage": "https://github.com/austinewuncler/daraja#readme",
+  "devDependencies": {
+    "typescript": "^4.1.5"
+  }
+}
