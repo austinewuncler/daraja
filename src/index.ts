@@ -1,8 +1,6 @@
 import axios from "axios";
 
 export default class Daraja {
-  static GENERATE_ACCESS_TOKEN = "oauth/v1/generate";
-  static MPESA_EXPRESS_REQUEST = "mpesa/stkpush/v1/processrequest";
   private accessToken: string;
   private tokenExpiry: number;
   private baseURL: string;
