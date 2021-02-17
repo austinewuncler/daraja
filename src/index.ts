@@ -1,7 +1,6 @@
-import got from "got";
+import axios from "axios";
 
 export default class Daraja {
-  static BASE_URL = "https://{}.safaricom.co.ke";
   static GENERATE_ACCESS_TOKEN = "oauth/v1/generate";
   static MPESA_EXPRESS_REQUEST = "mpesa/stkpush/v1/processrequest";
   private accessToken: string;
@@ -20,10 +19,9 @@ export default class Daraja {
   ) {
     this.accessToken = "";
     this.tokenExpiry = Date.now();
-    this.baseURL = Daraja.BASE_URL.replace(
-      "{}",
+    this.baseURL = `https://${
       config.env === "production" ? "api" : "sandbox"
-    );
+    }.safaricom.co.ke`;
     this.lnmPasskey = config.lnmPasskey;
   }
 
@@ -38,20 +36,19 @@ export default class Daraja {
   private refreshToken = async (): Promise<void> => {
     if (Date.now() >= this.tokenExpiry) {
       try {
-        const { access_token, expires_in } = await got
-          .get(Daraja.GENERATE_ACCESS_TOKEN, {
-            prefixUrl: this.baseURL,
-            searchParams: new URLSearchParams({
-              grant_type: "client_credentials"
-            }),
-            username: this.consumerKey,
-            password: this.consumerSecret
-          })
-          .json();
+        const {
+          data: { access_token, expires_in }
+        } = await axios.get("/oauth/v1/generate", {
+          baseURL: this.baseURL,
+          params: new URLSearchParams({
+            grant_type: "client_credentials"
+          }),
+          auth: { username: this.consumerKey, password: this.consumerSecret }
+        });
         this.accessToken = access_token;
         this.tokenExpiry = Date.now() + +expires_in * 1000;
       } catch (err) {
-        throw new Error(err.response.statusMessage);
+        throw new Error(err.response.statusText);
       }
     }
   };
@@ -72,32 +69,35 @@ export default class Daraja {
     const currentTimestamp = Daraja.generateTimestamp(new Date());
     try {
       const {
-        MerchantRequestID: merchantRequestID,
-        CheckoutRequestID: checkoutRequestID
-      } = await got
-        .post(Daraja.MPESA_EXPRESS_REQUEST, {
-          prefixUrl: this.baseURL,
-          json: {
-            BusinessShortCode: this.shortcode,
-            Password: Buffer.from(
-              `${this.shortcode}${this.lnmPasskey}${currentTimestamp}`
-            ).toString("base64"),
-            Timestamp: currentTimestamp,
-            TransactionType: transactionType,
-            Amount: amount,
-            PartyA: partyA,
-            PartyB: options.partyB || this.shortcode,
-            PhoneNumber: options.phoneNumber || partyA,
-            CallBackURL: options.callbackURL,
-            AccountReference: options.accountReference,
-            TransactionDesc: options.transactionDesc
-          },
+        data: {
+          MerchantRequestID: merchantRequestID,
+          CheckoutRequestID: checkoutRequestID
+        }
+      } = await axios.post(
+        "/mpesa/stkpush/v1/processrequest",
+        {
+          BusinessShortCode: this.shortcode,
+          Password: Buffer.from(
+            `${this.shortcode}${this.lnmPasskey}${currentTimestamp}`
+          ).toString("base64"),
+          Timestamp: currentTimestamp,
+          TransactionType: transactionType,
+          Amount: amount,
+          PartyA: partyA,
+          PartyB: options.partyB || this.shortcode,
+          PhoneNumber: options.phoneNumber || partyA,
+          CallBackURL: options.callbackURL,
+          AccountReference: options.accountReference,
+          TransactionDesc: options.transactionDesc
+        },
+        {
+          baseURL: this.baseURL,
           headers: { Authorization: `Bearer ${this.accessToken}` }
-        })
-        .json();
+        }
+      );
       return { merchantRequestID, checkoutRequestID };
     } catch (err) {
-      throw new Error(JSON.parse(err.response.body).errorMessage);
+      throw new Error(err.response.data.errorMessage);
     }
   };
 }

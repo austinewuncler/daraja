@@ -63,8 +63,11 @@ describe("daraja", () => {
           AccountReference: "ref",
           TransactionDesc: "desc"
         })
-        .matchHeader("Authorization", "Bearer accessToken")
-        .reply(400);
+        .replyWithError({
+          requestId: "requestId",
+          errorCode: "errorCode",
+          errorMessage: "errorMessage"
+        });
     });
 
     it("should pass with valid credentials", async () => {
@@ -99,22 +102,6 @@ describe("daraja", () => {
     });
 
     it("should fail with invalid params", async () => {
-      nock(baseURLRegex)
-        .post("/mpesa/stkpush/v1/processrequest", {
-          BusinessShortCode: 123456,
-          Password: /.+/,
-          Timestamp: /\d{14}/,
-          TransactionType: "CustomerBuyGoodsOnline",
-          Amount: 1,
-          PartyA: 2547123456789,
-          PartyB: 123456,
-          PhoneNumber: 2547123456789,
-          CallBackURL: "http://callback.url",
-          AccountReference: "ref",
-          TransactionDesc: "desc"
-        })
-        .matchHeader("Authorization", "Bearer accessToken")
-        .reply(400);
       try {
         await new Daraja(123456, "validKey", "validSecret", {
           env: "production"
