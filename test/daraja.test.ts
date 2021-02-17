@@ -4,18 +4,16 @@ import "jest-chain";
 import Daraja from "../src";
 
 describe("daraja", () => {
-  const baseURL = "https://sandbox.safaricom.co.ke";
-  const accessToken = "accessToken";
+  const baseURLRegex = /https:\/\/(sandbox|api)\.safaricom\.co\.ke/;
 
   beforeAll(() => {
-    const generateAccessToken = "/oauth/v1/generate";
-    nock(baseURL)
+    nock(baseURLRegex)
       .persist()
-      .get(generateAccessToken)
+      .get("/oauth/v1/generate")
       .query(new URLSearchParams({ grant_type: "client_credentials" }))
       .basicAuth({ user: "validKey", pass: "validSecret" })
-      .reply(200, { access_token: accessToken, expires_in: "3599" })
-      .get(generateAccessToken)
+      .reply(200, { access_token: "accessToken", expires_in: "3599" })
+      .get("/oauth/v1/generate")
       .query(new URLSearchParams({ grant_type: "client_credentials" }))
       .basicAuth({ user: "invalidKey", pass: "invalidSecret" })
       .reply(400);
@@ -28,10 +26,11 @@ describe("daraja", () => {
       daraja = new Daraja(123456, "validKey", "validSecret", {
         lnmPasskey: "passkey"
       });
-      const mpesaExpressRequest = "/mpesa/stkpush/v1/processrequest";
-      nock(baseURL)
+
+      nock(baseURLRegex)
         .persist()
-        .post(mpesaExpressRequest, {
+        .matchHeader("Authorization", "Bearer accessToken")
+        .post("/mpesa/stkpush/v1/processrequest", {
           BusinessShortCode: 123456,
           Password: /.+/,
           Timestamp: /\d{14}/,
@@ -44,7 +43,6 @@ describe("daraja", () => {
           AccountReference: "ref",
           TransactionDesc: "desc"
         })
-        .matchHeader("Authorization", `Bearer ${accessToken}`)
         .reply(200, {
           MerchantRequestID: "merchantRequestID",
           CheckoutRequestID: "checkoutRequestID",
@@ -52,7 +50,7 @@ describe("daraja", () => {
           ResponseDescription: "Success. Request accepted for processing",
           CustomerMessage: "Success. Request accepted for processing"
         })
-        .post(mpesaExpressRequest, {
+        .post("/mpesa/stkpush/v1/processrequest", {
           BusinessShortCode: 123456,
           Password: /.+/,
           Timestamp: /\d{14}/,
@@ -65,7 +63,7 @@ describe("daraja", () => {
           AccountReference: "ref",
           TransactionDesc: "desc"
         })
-        .matchHeader("Authorization", `Bearer ${accessToken}`)
+        .matchHeader("Authorization", "Bearer accessToken")
         .reply(400);
     });
 
@@ -91,6 +89,36 @@ describe("daraja", () => {
         await new Daraja(123456, "invalidKey", "invalidSecret", {
           lnmPasskey: "passkey"
         }).mpesaExpressRequest(1, 254712345678, "CustomerBuyGoodsOnline", {
+          callbackURL: "http://callback.url",
+          accountReference: "ref",
+          transactionDesc: "desc"
+        });
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+      }
+    });
+
+    it("should fail with invalid params", async () => {
+      nock(baseURLRegex)
+        .post("/mpesa/stkpush/v1/processrequest", {
+          BusinessShortCode: 123456,
+          Password: /.+/,
+          Timestamp: /\d{14}/,
+          TransactionType: "CustomerBuyGoodsOnline",
+          Amount: 1,
+          PartyA: 2547123456789,
+          PartyB: 123456,
+          PhoneNumber: 2547123456789,
+          CallBackURL: "http://callback.url",
+          AccountReference: "ref",
+          TransactionDesc: "desc"
+        })
+        .matchHeader("Authorization", "Bearer accessToken")
+        .reply(400);
+      try {
+        await new Daraja(123456, "validKey", "validSecret", {
+          env: "production"
+        }).mpesaExpressRequest(1, 2547123456789, "CustomerBuyGoodsOnline", {
           callbackURL: "http://callback.url",
           accountReference: "ref",
           transactionDesc: "desc"
