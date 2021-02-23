@@ -108,4 +108,43 @@ export default class MpesaAPI {
       throw new MpesaAPIError(err.response.data.errorMessage);
     }
   };
+
+  mpesaExpressQuery = async (
+    checkoutRequestId: string
+  ): Promise<{
+    merchantRequestID: string;
+    checkoutRequestID: string;
+    resultCode: string;
+    resultDesc: string;
+  }> => {
+    await this.refreshToken();
+    const currentTimestamp = MpesaAPI.generateTimestamp(new Date());
+    try {
+      const {
+        data: {
+          MerchantRequestID: merchantRequestID,
+          CheckoutRequestID: checkoutRequestID,
+          ResultCode: resultCode,
+          ResultDesc: resultDesc
+        }
+      } = await axios.post(
+        "/mpesa/stkpushquery/v1/query",
+        {
+          BusinessShortCode: +this.shortcode,
+          Password: Buffer.from(
+            `${this.shortcode}${this.lnmPasskey}${currentTimestamp}`
+          ).toString("base64"),
+          Timestamp: currentTimestamp,
+          CheckoutRequestID: checkoutRequestId
+        },
+        {
+          baseURL: this.baseURL,
+          headers: { Authorization: `Bearer ${this.accessToken}` }
+        }
+      );
+      return { merchantRequestID, checkoutRequestID, resultCode, resultDesc };
+    } catch (err) {
+      throw new MpesaAPIError(err.response.data.errorMessage);
+    }
+  };
 }

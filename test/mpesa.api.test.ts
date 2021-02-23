@@ -19,6 +19,10 @@ describe("mpesa API", () => {
       .reply(400);
   });
 
+  afterAll(() => {
+    nock.cleanAll();
+  });
+
   describe("mpesa express request", () => {
     let daraja: MpesaAPI;
 
@@ -110,6 +114,64 @@ describe("mpesa API", () => {
           accountReference: "ref",
           transactionDesc: "desc"
         });
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+      }
+    });
+  });
+
+  describe("mpesa express query", () => {
+    let daraja: MpesaAPI;
+
+    beforeAll(() => {
+      daraja = new MpesaAPI(123456, "validKey", "validSecret", {
+        lnmPasskey: "passkey"
+      });
+      nock(baseURLRegex)
+        .persist()
+        .matchHeader("Authorization", "Bearer accessToken")
+        .post("/mpesa/stkpushquery/v1/query", {
+          BusinessShortCode: 123456,
+          Password: /.+/,
+          Timestamp: /\d{14}/,
+          CheckoutRequestID: "checkoutRequestID"
+        })
+        .reply(200, {
+          ResponseCode: "0",
+          ResponseDescription:
+            "The service request has been accepted successsfully",
+          MerchantRequestID: "merchantRequestID",
+          CheckoutRequestID: "checkoutRequestID",
+          ResultCode: "resultCode",
+          ResultDesc: "resultDesc"
+        })
+        .post("/mpesa/stkpushquery/v1/query", {
+          BusinessShortCode: 123456,
+          Password: /.+/,
+          Timestamp: /\d{14}/,
+          CheckoutRequestID: "invalidCheckoutRequestID"
+        })
+        .replyWithError({
+          requestId: "invalidCheckoutRequestID",
+          errorCode: "errorCode",
+          errorMessage: "errorMessage"
+        });
+    });
+
+    it("should pass with valid credentials", async () => {
+      expect(await daraja.mpesaExpressQuery("checkoutRequestID"))
+        .toBeObject()
+        .toContainAllKeys([
+          "merchantRequestID",
+          "checkoutRequestID",
+          "resultCode",
+          "resultDesc"
+        ]);
+    });
+
+    it("should fail with invalid checkoutRequestID", async () => {
+      try {
+        await daraja.mpesaExpressQuery("invalidCheckoutRequestID");
       } catch (err) {
         expect(err).toBeInstanceOf(Error);
       }
