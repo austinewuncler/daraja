@@ -5,6 +5,12 @@ __metadata:
   version: 6
   cacheKey: 8
 
+"@daraja/client@workspace:packages/client":
+  version: 0.0.0-use.local
+  resolution: "@daraja/client@workspace:packages/client"
+  languageName: unknown
+  linkType: soft
+
 "@tsconfig/node-lts-strictest@npm:^18.12.1":
   version: 18.12.1
   resolution: "@tsconfig/node-lts-strictest@npm:18.12.1"

@@ -1,0 +1,32 @@
+{
+  "name": "@daraja/client",
+  "version": "2.0.0",
+  "packageManager": "yarn@3.3.0",
+  "license": "MIT",
+  "description": "A type-safe NodeJS library for Safaricom's Daraja API",
+  "homepage": "https://austinewuncler.github.io/daraja",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": {
+    "email": "austinewuncler@gmail.com",
+    "name": "Austine Were",
+    "url": "https://github.com/austinewuncler"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "safaricom",
+    "mpesa",
+    "m-pesa",
+    "daraja"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "directory": "packages/client",
+    "type": "git",
+    "url": "https://github.com/austinewuncler/daraja.git"
+  }
+}
