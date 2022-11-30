@@ -5,5 +5,8 @@
   },
   "typescript.tsdk": ".yarn/sdks/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "conventionalCommits.scopes": ["client"]
+  "conventionalCommits.scopes": [
+    "client"
+  ],
+  "eslint.nodePath": ".yarn/sdks"
 }
