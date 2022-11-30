@@ -1,6 +1,13 @@
 {
   "env": { "browser": true, "es2021": true, "node": true },
-  "extends": ["standard-with-typescript", "prettier"],
+  "extends": [
+    "standard-with-typescript",
+    "plugin:jest/recommended",
+    "plugin:jest/style",
+    "plugin:jest-extended/all",
+    "plugin:jest-formatting/recommended",
+    "prettier"
+  ],
   "overrides": [],
   "parserOptions": {
     "ecmaVersion": "latest",
