@@ -1,0 +1,15 @@
+{
+  "tsconfig": "./packages/client/tsconfig.json",
+  "entryPoints": ["./packages/client/src"],
+  "excludeInternal": true,
+  "out": "./docs",
+  "name": "Daraja Client",
+  "readme": "./DOCUMENTATION.md",
+  "plugin": [
+    "typedoc-plugin-extras",
+    "@droppedcode/typedoc-plugin-copy-assets",
+    "@mxssfd/typedoc-theme"
+  ],
+  "theme": "my-theme",
+  "favicon": "./assets/favicon.ico"
+}

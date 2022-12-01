@@ -4,5 +4,23 @@
   "private": true,
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "@droppedcode/typedoc-plugin-copy-assets": "^1.0.6",
+    "@mxssfd/typedoc-theme": "^1.0.3",
+    "@tsconfig/node-lts-strictest": "^18.12.1",
+    "@types/eslint": "^8.4.10",
+    "@vitest/coverage-c8": "^0.25.3",
+    "eslint": "^8.28.0",
+    "turbo": "^1.6.3",
+    "typedoc": "^0.23.21",
+    "typedoc-plugin-extras": "^2.3.1",
+    "typescript": "^4.9.3"
+  },
+  "scripts": {
+    "doc": "typedoc",
+    "test": "turbo run test",
+    "build": "turbo run build",
+    "test:coverage": "yarn workspace @daraja/client test:coverage"
+  }
 }
