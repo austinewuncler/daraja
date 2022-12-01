@@ -5,6 +5,7 @@
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
-node_modules
 .turbo
+node_modules
 coverage
+dist

@@ -9,6 +9,7 @@
         "test/**/*.tsx"
       ],
       "outputs": []
-    }
+    },
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] }
   }
 }
